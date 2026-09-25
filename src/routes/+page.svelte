@@ -21,13 +21,22 @@
   let manualKwh = $state<number>(150)
   let selectedPowerKva = $state<number>(3.45)
   let showArchived = $state<boolean>(false)
-  let createDialogOpen = $state<boolean>(false)
-  let editDialogOpen = $state<boolean>(false)
+  let proposalDialogOpen = $state<boolean>(false)
   let editingProposal = $state<Proposal | null>(null)
+
+  function openCreate() {
+    editingProposal = null
+    proposalDialogOpen = true
+  }
 
   function openEdit(p: Proposal) {
     editingProposal = p
-    editDialogOpen = true
+    proposalDialogOpen = true
+  }
+
+  function closeProposalDialog() {
+    proposalDialogOpen = false
+    editingProposal = null
   }
 
   // Available unique power kva values in proposals
@@ -100,7 +109,7 @@
   <!-- Controls Bar -->
   <wa-card>
     <div slot="header">
-      <h4>Configuração do Perfil de Consumo</h4>
+      <h3 data-appearance="h4">Configuração do Perfil de Consumo</h3>
     </div>
 
     <Grid>
@@ -166,20 +175,20 @@
   <!-- Consumption Breakdown Cards -->
   <wa-card>
     <div slot="header">
-      <h4>
+      <h3 data-appearance="h4">
         Perfil de Consumo Mensal Apurado ({effectiveKwh.toFixed(1)} kWh/mês)
-      </h4>
+      </h3>
     </div>
 
     <Grid gap="s">
       <div>
-        <span>Consumo Total</span>
+        <h4 data-appearance="p">Consumo Total</h4>
         <strong>{stats.monthlyAverageTotal.toFixed(1)} kWh</strong>
         <small>{stats.dailyAverageTotal.toFixed(2)} kWh/dia</small>
       </div>
 
       <div>
-        <span>Vazio</span>
+        <h4 data-appearance="p">Vazio</h4>
         <strong>{stats.monthlyAverageVazio.toFixed(1)} kWh</strong>
         <small
           >{(
@@ -190,7 +199,7 @@
       </div>
 
       <div>
-        <span>Ponta</span>
+        <h4 data-appearance="p">Ponta</h4>
         <strong>{stats.monthlyAveragePonta.toFixed(1)} kWh</strong>
         <small
           >{(
@@ -201,7 +210,7 @@
       </div>
 
       <div>
-        <span>Cheia</span>
+        <h4 data-appearance="p">Cheia</h4>
         <strong>{stats.monthlyAverageCheia.toFixed(1)} kWh</strong>
         <small
           >{(
@@ -212,7 +221,7 @@
       </div>
 
       <div>
-        <span>Fora de Vazio (P+C)</span>
+        <h4 data-appearance="p">Fora de Vazio (P+C)</h4>
         <strong>{stats.monthlyAverageForaDeVazio.toFixed(1)} kWh</strong>
         <small
           >{(
@@ -256,7 +265,7 @@
           tabindex="0"
           variant="brand"
           size="small"
-          onclick={() => (createDialogOpen = true)}
+          onclick={openCreate}
         >
           <wa-icon slot="prefix" name="plus"></wa-icon>
           Nova Proposta
@@ -346,7 +355,7 @@
                     name="currentActive"
                     value={String(item.proposal.is_active)}
                   />
-                  <wa-button type="submit" variant="text" size="small">
+                  <wa-button type="submit" variant={item.proposal.is_active ? 'danger' : 'success'} size="small">
                     {item.proposal.is_active ? 'Arquivar' : 'Reativar'}
                   </wa-button>
                 </form>
@@ -359,125 +368,27 @@
   </div>
 </wa-card>
 
-<!-- Dialog for New Proposal -->
+<!-- Dialog for Creating / Editing Proposal -->
 <wa-dialog
-  label="Adicionar Nova Proposta"
-  open={createDialogOpen}
-  onwa-after-hide={() => (createDialogOpen = false)}
+  label={editingProposal ? 'Editar Proposta' : 'Adicionar Nova Proposta'}
+  open={proposalDialogOpen}
+  onwa-after-hide={closeProposalDialog}
 >
-  <form method="POST" action="?/create">
-    <Grid direction="column">
-      <Grid direction="column">
-        <wa-input
-          label="Data"
-          type="date"
-          name="date"
-          value={new Date().toISOString().split('T')[0]}
-          required
-        ></wa-input>
+  {#key editingProposal?.id ?? 'new'}
+    <Grid direction="column" gap="m">
+      <form method="POST" action={editingProposal ? '?/update' : '?/create'}>
+        {#if editingProposal}
+          <input type="hidden" name="id" value={editingProposal.id} />
+        {/if}
 
-        <wa-input
-          label="Comercializadora"
-          type="text"
-          name="supplier"
-          placeholder="Ex: EDP, Galp, Coopérnico"
-          required
-        ></wa-input>
-        <wa-input
-          label="Potência (kVA)"
-          type="number"
-          name="power_kva"
-          value={String(selectedPowerKva || 3.45)}
-          step="0.01"
-          min="0"
-          required
-        ></wa-input>
-
-        <wa-input
-          label="Potência TAR (€/dia)"
-          type="number"
-          name="power_tar"
-          value="0.1718"
-          step="0.0001"
-          required
-        ></wa-input>
-
-        <wa-input
-          label="Potência Comerc. (€/dia)"
-          type="number"
-          name="power_com"
-          step="0.0001"
-          required
-          placeholder="0.0500"
-        ></wa-input>
-        
-        <wa-input
-          label="Energia TAR (€/kWh)"
-          type="number"
-          name="energy_tar"
-          value="0.0607"
-          step="0.0001"
-          required
-        ></wa-input>
-
-        <wa-input
-          label="Energia Comerc. (€/kWh)"
-          type="number"
-          name="energy_com"
-          step="0.0001"
-          required
-          placeholder="0.0750"
-        ></wa-input>
-
-        <wa-checkbox name="is_indexed">
-          Tarifário Indexado (OMIE)
-        </wa-checkbox>
-
-        <wa-input
-          label="Notas adicionais"
-          type="text"
-          name="notes"
-          placeholder="Ex: Campanha de adesão com desconto"
-        ></wa-input>
-      </Grid>
-
-      <Grid gap="s">
-        <wa-button
-          role="button"
-          tabindex="0"
-          variant="neutral"
-          onclick={() => (createDialogOpen = false)}
-        >
-          Cancelar
-        </wa-button>
-        <wa-button type="submit" variant="brand">
-          Criar Proposta
-        </wa-button>
-      </Grid>
-    </Grid>
-  </form>
-</wa-dialog>
-
-<!-- Dialog for Editing Proposal -->
-<wa-dialog
-  label="Editar Proposta"
-  open={editDialogOpen}
-  onwa-after-hide={() => {
-    editDialogOpen = false
-    editingProposal = null
-  }}
->
-  {#if editingProposal}
-    <Grid>
-      <form method="POST" action="?/update">
-        <input type="hidden" name="id" value={editingProposal.id} />
-        <Grid>
-          <Grid gap="s">
+        <Grid direction="column" gap="m">
             <wa-input
               label="Data"
               type="date"
               name="date"
-              value={editingProposal.date ? editingProposal.date.split('T')[0] : ''}
+              value={editingProposal?.date
+                ? editingProposal.date.split('T')[0]
+                : new Date().toISOString().split('T')[0]}
               required
             ></wa-input>
 
@@ -485,17 +396,17 @@
               label="Comercializadora"
               type="text"
               name="supplier"
-              value={editingProposal.supplier}
+              value={editingProposal?.supplier ?? ''}
+              placeholder="Ex: EDP, Galp, Coopérnico"
               required
             ></wa-input>
-          </Grid>
-
-          <Grid gap="s">
             <wa-input
               label="Potência (kVA)"
               type="number"
               name="power_kva"
-              value={String(editingProposal.power_kva)}
+              value={editingProposal
+                ? String(editingProposal.power_kva)
+                : String(selectedPowerKva || 3.45)}
               step="0.01"
               min="0"
               required
@@ -505,7 +416,9 @@
               label="Potência TAR (€/dia)"
               type="number"
               name="power_tar"
-              value={String(editingProposal.power_tar)}
+              value={editingProposal
+                ? String(editingProposal.power_tar)
+                : '0.1718'}
               step="0.0001"
               required
             ></wa-input>
@@ -514,18 +427,18 @@
               label="Potência Comerc. (€/dia)"
               type="number"
               name="power_com"
-              value={String(editingProposal.power_com)}
+              value={editingProposal ? String(editingProposal.power_com) : ''}
               step="0.0001"
               required
+              placeholder="0.0500"
             ></wa-input>
-          </Grid>
-
-          <Grid gap="s">
             <wa-input
               label="Energia TAR (€/kWh)"
               type="number"
               name="energy_tar"
-              value={String(editingProposal.energy_tar)}
+              value={editingProposal
+                ? String(editingProposal.energy_tar)
+                : '0.0607'}
               step="0.0001"
               required
             ></wa-input>
@@ -534,67 +447,66 @@
               label="Energia Comerc. (€/kWh)"
               type="number"
               name="energy_com"
-              value={String(editingProposal.energy_com)}
+              value={editingProposal ? String(editingProposal.energy_com) : ''}
               step="0.0001"
               required
+              placeholder="0.0750"
             ></wa-input>
-          </Grid>
 
           <wa-checkbox
             name="is_indexed"
-            checked={editingProposal.is_indexed ? true : undefined}
+            checked={editingProposal?.is_indexed ? true : undefined}
           >
             Tarifário Indexado (OMIE)
           </wa-checkbox>
 
-          <wa-checkbox
-            name="is_active"
-            checked={editingProposal.is_active ? true : undefined}
-          >
-            Proposta Ativa
-          </wa-checkbox>
+          {#if editingProposal}
+            <wa-checkbox
+              name="is_active"
+              checked={editingProposal.is_active ? true : undefined}
+            >
+              Proposta Ativa
+            </wa-checkbox>
+          {/if}
 
           <wa-input
             label="Notas adicionais"
             type="text"
             name="notes"
-            value={editingProposal.notes || ''}
+            value={editingProposal?.notes ?? ''}
             placeholder="Ex: Campanha de adesão com desconto"
           ></wa-input>
 
-          <Grid gap="s" justify="space-between">
             <wa-button
               role="button"
               tabindex="0"
               variant="neutral"
-              onclick={() => {
-                editDialogOpen = false
-                editingProposal = null
-              }}
+              onclick={closeProposalDialog}
             >
               Cancelar
             </wa-button>
             <wa-button type="submit" variant="brand">
-              Guardar Alterações
+              {editingProposal ? 'Guardar Alterações' : 'Criar Proposta'}
             </wa-button>
-          </Grid>
         </Grid>
       </form>
 
-      <form
-        method="POST"
-        action="?/delete"
-        onsubmit={(e) => {
-          if (!confirm('Eliminar esta proposta permanentemente?')) {
-            e.preventDefault()
-          }
-        }}
-      >
-        <input type="hidden" name="id" value={editingProposal.id} />
-        <wa-button type="submit" variant="danger">
-          Eliminar Proposta
-        </wa-button>
-      </form>
+      {#if editingProposal}
+        <form
+          method="POST"
+          action="?/delete"
+          onsubmit={(e) => {
+            if (!confirm('Eliminar esta proposta permanentemente?')) {
+              e.preventDefault()
+            }
+          }}
+        >
+          <input type="hidden" name="id" value={editingProposal.id} />
+          <wa-button type="submit" variant="danger">
+            Eliminar Proposta
+          </wa-button>
+        </form>
+      {/if}
     </Grid>
-  {/if}
+  {/key}
 </wa-dialog>
