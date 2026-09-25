@@ -49,9 +49,6 @@
         </Grid>
       </form>
 
-      <div slot="footer">
-        <small>Credenciais padrão: admin@local.host / password123456</small>
-      </div>
     </wa-card>
   </Grid>
 </div>
