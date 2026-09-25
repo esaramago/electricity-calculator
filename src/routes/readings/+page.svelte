@@ -12,6 +12,18 @@
   let { data }: Props = $props()
 
   let dialogOpen = $state(false)
+  let deleteDialogOpen = $state(false)
+  let readingToDelete = $state<Reading | null>(null)
+
+  function openDeleteConfirm(reading: Reading) {
+    readingToDelete = reading
+    deleteDialogOpen = true
+  }
+
+  function closeDeleteDialog() {
+    deleteDialogOpen = false
+    readingToDelete = null
+  }
 
   // Compute stats across all readings
   const stats = $derived(calculateConsumption(data.readings, 'all_time'))
@@ -43,7 +55,65 @@
   </div>
 </Grid>
 
-<Grid fullWidth>
+<Grid fullWidth break="large">
+
+  <!-- Readings Table -->
+  <wa-card>
+    <div slot="header">
+      <h3>Histórico de Registos ({data.readings.length})</h3>
+    </div>
+
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Vazio</th>
+            <th>Ponta</th>
+            <th>Cheia</th>
+            <th>Total (kWh)</th>
+            <th>Consumo Período</th>
+            <th>Notas</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {#each data.readings as reading, i (reading.id)}
+            {@const delta = getDelta(i)}
+            <tr>
+              <td><strong>{formatDate(reading.date)}</strong></td>
+              <td>{reading.vazio.toLocaleString('pt-PT')}</td>
+              <td>{reading.ponta.toLocaleString('pt-PT')}</td>
+              <td>{reading.cheia.toLocaleString('pt-PT')}</td>
+              <td><strong>{reading.total.toLocaleString('pt-PT')}</strong></td
+              >
+              <td>
+                {#if delta !== null}
+                  <wa-badge variant="neutral"
+                    >+{delta.toLocaleString('pt-PT')} kWh</wa-badge
+                  >
+                {:else}
+                  <wa-badge variant="brand">Leitura Inicial</wa-badge>
+                {/if}
+              </td>
+              <td>{reading.notes || '-'}</td>
+              <td>
+                <wa-button
+                  role="button"
+                  tabindex="0"
+                  variant="danger"
+                  size="small"
+                  onclick={() => openDeleteConfirm(reading)}
+                >
+                  Eliminar
+                </wa-button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  </wa-card>
   <!-- Summary Statistics -->
   <wa-card>
     <div slot="header">
@@ -88,72 +158,6 @@
         <strong>{stats.monthlyAverageForaDeVazio.toFixed(1)} kWh/mês</strong>
       </div>
     </Grid>
-  </wa-card>
-
-  <!-- Readings Table -->
-  <wa-card>
-    <div slot="header">
-      <h3>Histórico de Registos ({data.readings.length})</h3>
-    </div>
-
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Vazio</th>
-            <th>Ponta</th>
-            <th>Cheia</th>
-            <th>Total (kWh)</th>
-            <th>Consumo Período</th>
-            <th>Notas</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each data.readings as reading, i (reading.id)}
-            {@const delta = getDelta(i)}
-            <tr>
-              <td><strong>{formatDate(reading.date)}</strong></td>
-              <td>{reading.vazio.toLocaleString('pt-PT')}</td>
-              <td>{reading.ponta.toLocaleString('pt-PT')}</td>
-              <td>{reading.cheia.toLocaleString('pt-PT')}</td>
-              <td><strong>{reading.total.toLocaleString('pt-PT')}</strong></td
-              >
-              <td>
-                {#if delta !== null}
-                  <wa-badge variant="neutral"
-                    >+{delta.toLocaleString('pt-PT')} kWh</wa-badge
-                  >
-                {:else}
-                  <wa-badge variant="brand">Leitura Inicial</wa-badge>
-                {/if}
-              </td>
-              <td>{reading.notes || '-'}</td>
-              <td>
-                <form
-                  method="POST"
-                  action="?/delete"
-                  onsubmit={(e) => {
-                    if (
-                      !confirm(
-                        'Tem a certeza que deseja eliminar esta leitura?',
-                      )
-                    )
-                      e.preventDefault()
-                  }}
-                >
-                  <input type="hidden" name="id" value={reading.id} />
-                  <wa-button type="submit" variant="danger" size="small">
-                    Eliminar
-                  </wa-button>
-                </form>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
   </wa-card>
 </Grid>
 
@@ -220,4 +224,40 @@
       </Grid>
     </Grid>
   </form>
+</wa-dialog>
+
+<!-- Confirmation Dialog for Deleting Reading -->
+<wa-dialog
+  label="Confirmar Eliminação"
+  open={deleteDialogOpen}
+  onwa-after-hide={closeDeleteDialog}
+>
+  {#if readingToDelete}
+    <Grid direction="column" gap="m">
+      <p>
+        Tens a certeza de que pretendes eliminar a leitura de <strong>{formatDate(readingToDelete.date)}</strong> ({readingToDelete.total.toLocaleString('pt-PT')} kWh)?
+      </p>
+      <p>
+        Esta ação é irreversível e removerá permanentemente o registo desta leitura.
+      </p>
+
+      <Grid gap="s" justify="end">
+        <wa-button
+          role="button"
+          tabindex="0"
+          variant="neutral"
+          onclick={closeDeleteDialog}
+        >
+          Cancelar
+        </wa-button>
+
+        <form method="POST" action="?/delete">
+          <input type="hidden" name="id" value={readingToDelete.id} />
+          <wa-button type="submit" variant="danger">
+            Eliminar Leitura
+          </wa-button>
+        </form>
+      </Grid>
+    </Grid>
+  {/if}
 </wa-dialog>

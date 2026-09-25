@@ -69,6 +69,13 @@
     }
   }
 
+  @media (max-width: 1199px) {
+    .break--large {
+      flex-direction: column;
+      flex-wrap: wrap;
+    }
+  }
+
   :global(.l-grid > [data-grow='1']) {
     flex-grow: 1;
   }

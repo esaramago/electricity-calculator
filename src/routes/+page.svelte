@@ -25,6 +25,8 @@
   let editingProposal = $state<Proposal | null>(null)
   let archiveDialogOpen = $state<boolean>(false)
   let proposalToArchive = $state<Proposal | null>(null)
+  let deleteDialogOpen = $state<boolean>(false)
+  let proposalToDelete = $state<Proposal | null>(null)
 
   function openCreate() {
     editingProposal = null
@@ -49,6 +51,16 @@
   function closeArchiveDialog() {
     archiveDialogOpen = false
     proposalToArchive = null
+  }
+
+  function openDeleteConfirm(p: Proposal) {
+    proposalToDelete = p
+    deleteDialogOpen = true
+  }
+
+  function closeDeleteDialog() {
+    deleteDialogOpen = false
+    proposalToDelete = null
   }
 
   // Available unique power kva values in proposals
@@ -91,13 +103,6 @@
     }
   }
 
-  function handlePowerChange(event: Event) {
-    const target = event.target as HTMLSelectElement | null
-    if (target?.value) {
-      selectedPowerKva = Number(target.value)
-    }
-  }
-
   function handleManualInput(event: Event) {
     const target = event.target as HTMLInputElement | null
     if (target?.value) {
@@ -117,14 +122,14 @@
   </p>
 </div>
 
-<Grid gap="s" fullWidth>
+<Grid fullWidth break="mobile">
   <!-- Controls Bar -->
   <wa-card>
     <div slot="header">
       <h3 data-appearance="h4">Configuração do Perfil de Consumo</h3>
     </div>
 
-    <Grid>
+    <Grid fullWidth break="small">
       <wa-select
         id="method-select"
         value={selectedMethod}
@@ -173,7 +178,7 @@
       </h3>
     </div>
 
-    <Grid gap="s">
+    <Grid fullWidth break="small">
       <div>
         <h4 data-appearance="p">Consumo Total</h4>
         <strong>{stats.monthlyAverageTotal.toFixed(1)} kWh</strong><br>
@@ -244,7 +249,7 @@
 <!-- Comparison Table -->
 <wa-card>
   <div slot="header">
-    <Grid align="center" justify="space-between">
+    <Grid align="center" justify="space-between" break="small">
       <h4>Ranking de Tarifários (Ordenado por Preço)</h4>
       <Grid gap="s" align="center">
         <wa-checkbox
@@ -495,23 +500,55 @@
       </form>
 
       {#if editingProposal}
-        <form
-          method="POST"
-          action="?/delete"
-          onsubmit={(e) => {
-            if (!confirm('Eliminar esta proposta permanentemente?')) {
-              e.preventDefault()
-            }
+        <wa-button
+          role="button"
+          tabindex="0"
+          variant="danger"
+          onclick={() => {
+            if (editingProposal) openDeleteConfirm(editingProposal)
           }}
         >
-          <input type="hidden" name="id" value={editingProposal.id} />
+          Eliminar Proposta
+        </wa-button>
+      {/if}
+    </Grid>
+  {/key}
+</wa-dialog>
+
+<!-- Confirmation Dialog for Deleting Proposal -->
+<wa-dialog
+  label="Confirmar Eliminação"
+  open={deleteDialogOpen}
+  onwa-after-hide={closeDeleteDialog}
+>
+  {#if proposalToDelete}
+    <Grid direction="column" gap="m">
+      <p>
+        Tens a certeza de que pretendes eliminar a proposta de <strong>{proposalToDelete.supplier}</strong> ({proposalToDelete.power_kva} kVA)?
+      </p>
+      <p>
+        Esta ação é irreversível e removerá permanentemente a proposta do sistema.
+      </p>
+
+      <Grid gap="s" justify="end">
+        <wa-button
+          role="button"
+          tabindex="0"
+          variant="neutral"
+          onclick={closeDeleteDialog}
+        >
+          Cancelar
+        </wa-button>
+
+        <form method="POST" action="?/delete">
+          <input type="hidden" name="id" value={proposalToDelete.id} />
           <wa-button type="submit" variant="danger">
             Eliminar Proposta
           </wa-button>
         </form>
-      {/if}
+      </Grid>
     </Grid>
-  {/key}
+  {/if}
 </wa-dialog>
 
 <!-- Confirmation Dialog for Archiving Proposal -->
