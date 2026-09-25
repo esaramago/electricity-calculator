@@ -18,10 +18,10 @@
   }
 </script>
 
-<div class="proposals-page">
-  <Grid cols="1" gap="4">
-    <div class="page-title-row">
-      <Grid cols="2" gap="4">
+<div>
+  <Grid>
+    <div>
+      <Grid>
         <div>
           <h2>Propostas de Tarifários</h2>
           <p>Tabela de preços e condições comerciais dos fornecedores</p>
@@ -40,8 +40,8 @@
         <h4>Lista de Propostas ({data.proposals.length})</h4>
       </div>
 
-      <div class="table-responsive">
-        <table class="proposals-table">
+      <div>
+        <table>
           <thead>
             <tr>
               <th>Data</th>
@@ -59,7 +59,7 @@
           </thead>
           <tbody>
             {#each data.proposals as p (p.id)}
-              <tr class={!p.is_active ? 'archived-row' : ''}>
+              <tr>
                 <td><strong>{formatDate(p.date)}</strong></td>
                 <td><strong>{p.supplier}</strong></td>
                 <td><wa-tag variant="neutral">{p.power_kva} kVA</wa-tag></td>
@@ -83,7 +83,7 @@
                 </td>
                 <td>{p.notes || '-'}</td>
                 <td>
-                  <Grid cols="2" gap="1">
+                  <Grid gap="xs">
                     <form method="POST" action="?/toggleActive">
                       <input type="hidden" name="id" value={p.id} />
                       <input
@@ -126,8 +126,8 @@
     onwa-after-hide={() => (dialogOpen = false)}
   >
     <form method="POST" action="?/create">
-      <Grid cols="1" gap="4">
-        <Grid cols="2" gap="2">
+      <Grid>
+        <Grid gap="s">
           <wa-input
             label="Data"
             type="date"
@@ -145,7 +145,7 @@
           ></wa-input>
         </Grid>
 
-        <Grid cols="3" gap="2">
+        <Grid gap="s">
           <wa-input
             label="Potência (kVA)"
             type="number"
@@ -175,7 +175,7 @@
           ></wa-input>
         </Grid>
 
-        <Grid cols="2" gap="2">
+        <Grid gap="s">
           <wa-input
             label="Energia TAR (€/kWh)"
             type="number"
@@ -195,7 +195,7 @@
           ></wa-input>
         </Grid>
 
-        <label class="checkbox-label">
+        <label>
           <input type="checkbox" name="is_indexed" />
           <span>Tarifário Indexado (OMIE)</span>
         </label>
@@ -207,7 +207,7 @@
           placeholder="Ex: Campanha de adesão com desconto"
         ></wa-input>
 
-        <Grid cols="2" gap="2">
+        <Grid gap="s">
           <wa-button role="button" tabindex="0" variant="neutral" onclick={() => (dialogOpen = false)}>
             Cancelar
           </wa-button>

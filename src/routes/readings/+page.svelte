@@ -30,10 +30,10 @@
   }
 </script>
 
-<div class="readings-page">
-  <Grid cols="1" gap="4">
-    <div class="page-title-row">
-      <Grid cols="2" gap="4">
+<div>
+  <Grid>
+    <div>
+      <Grid>
         <div>
           <h2>Leituras de Consumo</h2>
           <p>Registo histórico de leituras do contador elétrico</p>
@@ -52,20 +52,20 @@
       <div slot="header">
         <h4>Resumo Histórico Geral</h4>
       </div>
-      <Grid cols="4" gap="4">
-        <div class="stat-item">
+      <Grid>
+        <div>
           <span>Dias Decorridos</span>
           <strong>{stats.days} dias</strong>
         </div>
-        <div class="stat-item">
+        <div>
           <span>Total Consumido</span>
           <strong>{stats.deltaTotal.toLocaleString('pt-PT')} kWh</strong>
         </div>
-        <div class="stat-item">
+        <div>
           <span>Média Mensal (30 dias)</span>
           <strong>{stats.monthlyAverageTotal.toFixed(1)} kWh/mês</strong>
         </div>
-        <div class="stat-item">
+        <div>
           <span>Média Diária</span>
           <strong>{stats.dailyAverageTotal.toFixed(2)} kWh/dia</strong>
         </div>
@@ -73,20 +73,20 @@
 
       <wa-divider></wa-divider>
 
-      <Grid cols="4" gap="4">
-        <div class="stat-subitem">
+      <Grid>
+        <div>
           <span>Vazio (Média)</span>
           <strong>{stats.monthlyAverageVazio.toFixed(1)} kWh/mês</strong>
         </div>
-        <div class="stat-subitem">
+        <div>
           <span>Ponta (Média)</span>
           <strong>{stats.monthlyAveragePonta.toFixed(1)} kWh/mês</strong>
         </div>
-        <div class="stat-subitem">
+        <div>
           <span>Cheia (Média)</span>
           <strong>{stats.monthlyAverageCheia.toFixed(1)} kWh/mês</strong>
         </div>
-        <div class="stat-subitem">
+        <div>
           <span>Fora Vazio (P+C)</span>
           <strong>{stats.monthlyAverageForaDeVazio.toFixed(1)} kWh/mês</strong>
         </div>
@@ -99,8 +99,8 @@
         <h4>Histórico de Registos ({data.readings.length})</h4>
       </div>
 
-      <div class="table-responsive">
-        <table class="readings-table">
+      <div>
+        <table>
           <thead>
             <tr>
               <th>Data</th>
@@ -167,7 +167,7 @@
     onwa-after-hide={() => (dialogOpen = false)}
   >
     <form method="POST" action="?/create">
-      <Grid cols="1" gap="4">
+      <Grid>
         <wa-input
           label="Data da Leitura"
           type="date"
@@ -176,7 +176,7 @@
           required
         ></wa-input>
 
-        <Grid cols="3" gap="2">
+        <Grid gap="s">
           <wa-input
             label="Vazio (kWh)"
             type="number"
@@ -215,7 +215,7 @@
           placeholder="Ex: Leitura real após férias"
         ></wa-input>
 
-        <Grid cols="2" gap="2">
+        <Grid gap="s">
           <wa-button role="button" tabindex="0" variant="neutral" onclick={() => (dialogOpen = false)}>
             Cancelar
           </wa-button>

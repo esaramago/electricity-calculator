@@ -11,9 +11,9 @@
   let { form }: Props = $props()
 </script>
 
-<div class="login-wrapper">
-  <Grid cols="1" gap="4">
-    <wa-card class="login-card">
+<div>
+  <Grid>
+    <wa-card>
       <div slot="header">
         <h3>Iniciar Sessão</h3>
         <p>Aceda ao Calculador de Eletricidade</p>
@@ -27,7 +27,7 @@
       {/if}
 
       <form method="POST">
-        <Grid cols="1" gap="4">
+        <Grid>
           <wa-input
             label="Email"
             type="email"
