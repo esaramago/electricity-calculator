@@ -23,6 +23,8 @@
   let showArchived = $state<boolean>(false)
   let proposalDialogOpen = $state<boolean>(false)
   let editingProposal = $state<Proposal | null>(null)
+  let archiveDialogOpen = $state<boolean>(false)
+  let proposalToArchive = $state<Proposal | null>(null)
 
   function openCreate() {
     editingProposal = null
@@ -37,6 +39,16 @@
   function closeProposalDialog() {
     proposalDialogOpen = false
     editingProposal = null
+  }
+
+  function openArchiveConfirm(p: Proposal) {
+    proposalToArchive = p
+    archiveDialogOpen = true
+  }
+
+  function closeArchiveDialog() {
+    archiveDialogOpen = false
+    proposalToArchive = null
   }
 
   // Available unique power kva values in proposals
@@ -319,27 +331,37 @@
             <td>
               <Grid gap="xs" align="center">
                 <wa-button
-                  role="button"
-                  tabindex="0"
+                  type="button"
                   variant="neutral"
-                  size="small"
+                  size="s"
                   onclick={() => openEdit(item.proposal)}
                 >
-                  <wa-icon slot="prefix" name="pencil"></wa-icon>
-                  Editar
+                  <wa-icon name="pencil" label="Editar"></wa-icon>
                 </wa-button>
 
-                <form method="POST" action="?/toggleActive">
-                  <input type="hidden" name="id" value={item.proposal.id} />
-                  <input
-                    type="hidden"
-                    name="currentActive"
-                    value={String(item.proposal.is_active)}
-                  />
-                  <wa-button type="submit" variant={item.proposal.is_active ? 'danger' : 'success'} size="small">
-                    {item.proposal.is_active ? 'Arquivar' : 'Reativar'}
+                {#if item.proposal.is_active}
+                  <wa-button
+                    role="button"
+                    tabindex="0"
+                    variant="danger"
+                    size="small"
+                    onclick={() => openArchiveConfirm(item.proposal)}
+                  >
+                    Arquivar
                   </wa-button>
-                </form>
+                {:else}
+                  <form method="POST" action="?/toggleActive">
+                    <input type="hidden" name="id" value={item.proposal.id} />
+                    <input
+                      type="hidden"
+                      name="currentActive"
+                      value={String(item.proposal.is_active)}
+                    />
+                    <wa-button type="submit" variant="success" size="small">
+                      Reativar
+                    </wa-button>
+                  </form>
+                {/if}
               </Grid>
             </td>
           </tr>
@@ -490,4 +512,41 @@
       {/if}
     </Grid>
   {/key}
+</wa-dialog>
+
+<!-- Confirmation Dialog for Archiving Proposal -->
+<wa-dialog
+  label="Confirmar Arquivo"
+  open={archiveDialogOpen}
+  onwa-after-hide={closeArchiveDialog}
+>
+  {#if proposalToArchive}
+    <Grid direction="column" gap="m">
+      <p>
+        Tens a certeza de que pretendes arquivar a proposta de <strong>{proposalToArchive.supplier}</strong> ({proposalToArchive.power_kva} kVA)?
+      </p>
+      <p>
+        Esta proposta deixará de ser apresentada no comparador de tarifários ativos. Podes consultá-la ou reativá-la a qualquer momento selecionando "Mostrar arquivadas".
+      </p>
+
+      <Grid gap="s" justify="end">
+        <wa-button
+          role="button"
+          tabindex="0"
+          variant="neutral"
+          onclick={closeArchiveDialog}
+        >
+          Cancelar
+        </wa-button>
+
+        <form method="POST" action="?/toggleActive">
+          <input type="hidden" name="id" value={proposalToArchive.id} />
+          <input type="hidden" name="currentActive" value="true" />
+          <wa-button type="submit" variant="danger">
+            Arquivar Proposta
+          </wa-button>
+        </form>
+      </Grid>
+    </Grid>
+  {/if}
 </wa-dialog>
