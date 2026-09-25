@@ -139,3 +139,9 @@ docker compose up -d --build
 | `pnpm build` | Builds the production bundle |
 | `pnpm preview` | Previews the production build locally |
 | `pnpm check` | Runs SvelteKit sync and TypeScript diagnostics |
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](file:///home/emanuelsaramago/www/electricity-calculator/LICENSE).
