@@ -2,4 +2,6 @@
 @import 'base/reset.css';
 @import 'base/global.css';
 
+@import 'elements/headings.css';
+
 @import 'layout/container.css';

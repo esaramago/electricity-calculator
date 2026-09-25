@@ -171,8 +171,9 @@ export function calculateAllProposals(
   proposals: Proposal[],
   monthlyKwh: number,
   filterPowerKva?: number,
+  includeArchived: boolean = false,
 ): ProposalCalculation[] {
-  let list = proposals.filter((p) => p.is_active)
+  let list = includeArchived ? proposals : proposals.filter((p) => p.is_active)
 
   if (filterPowerKva !== undefined && filterPowerKva > 0) {
     list = list.filter((p) => Math.abs(p.power_kva - filterPowerKva) < 0.01)
@@ -218,8 +219,10 @@ export function calculateAllProposals(
   // Sort by total monthly cost with VAT ascending
   calculated.sort((a, b) => a.totalMonthlyWithVat - b.totalMonthlyWithVat)
 
-  if (calculated.length > 0) {
-    calculated[0].isBest = true
+  // Only active proposals can be considered the best offer
+  const bestActive = calculated.find((p) => p.proposal.is_active)
+  if (bestActive) {
+    bestActive.isBest = true
   }
 
   return calculated

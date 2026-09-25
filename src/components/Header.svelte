@@ -12,7 +12,9 @@
   <header class="l-container">
     <Grid align="center" justify="space-between">
       <Grid align="center">
-        <h2>Calculador de Eletricidade</h2>
+        <a href="/">
+          <h1>Eletricidade</h1>
+        </a>
         <nav>
           <Grid gap="none">
             <a href="/">
@@ -20,9 +22,6 @@
             </a>
             <a href="/readings">
               <wa-button appearance="plain">Consumos</wa-button>
-            </a>
-            <a href="/proposals">
-              <wa-button appearance="plain">Propostas</wa-button>
             </a>
           </Grid>
         </nav>
@@ -43,5 +42,8 @@
 <style>
   header {
     padding-block: var(--wa-space-l);
+  }
+  h1 {
+    font-size: var(--wa-font-size-xl);
   }
 </style>

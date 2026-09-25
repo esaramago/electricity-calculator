@@ -13,6 +13,7 @@
   import '@awesome.me/webawesome/dist/components/tag/tag.js'
   import '@awesome.me/webawesome/dist/components/divider/divider.js'
   import '@awesome.me/webawesome/dist/components/callout/callout.js'
+  import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js'
 
   import Header from '@/components/Header.svelte'
   import type { Snippet } from 'svelte'
