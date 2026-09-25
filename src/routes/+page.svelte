@@ -105,7 +105,7 @@
   </p>
 </div>
 
-<Grid gap="s">
+<Grid gap="s" fullWidth>
   <!-- Controls Bar -->
   <wa-card>
     <div slot="header">
@@ -113,26 +113,22 @@
     </div>
 
     <Grid>
-      <div>
-        <label for="method-select">
-          <strong>Tipo de Cálculo (Média de Consumo)</strong>
-        </label>
-        <select
-          id="method-select"
-          value={selectedMethod}
-          onchange={handleMethodChange}
+      <wa-select
+        id="method-select"
+        value={selectedMethod}
+        waOnchange={handleMethodChange}
+        label="Tipo de Cálculo (Média de Consumo)"
+      >
+        <wa-option value="all_time">Todo o Histórico (2022 até hoje)</wa-option>
+        <wa-option value="last_12_months"
+          >Últimos 12 Meses (LTM - 1 ano)</wa-option
         >
-          <option value="all_time">Todo o Histórico (2022 até hoje)</option>
-          <option value="last_12_months"
-            >Últimos 12 Meses (LTM - 1 ano)</option
-          >
-          <option value="last_6_months"
-            >Últimos 6 Meses (Tendência Recente)</option
-          >
-          <option value="ytd">Ano Corrente (YTD)</option>
-          <option value="manual">Simulação Manual Personalizada</option>
-        </select>
-      </div>
+        <wa-option value="last_6_months"
+          >Últimos 6 Meses (Tendência Recente)</wa-option
+        >
+        <wa-option value="ytd">Ano Corrente (YTD)</wa-option>
+        <wa-option value="manual">Simulação Manual Personalizada</wa-option>
+      </wa-select>
 
       <div>
         {#if selectedMethod === 'manual'}
@@ -146,28 +142,13 @@
           ></wa-input>
         {:else}
           <div>
-            <span>Período Considerado</span>
+            <h3 data-appearance="p">Período Considerado</h3>
             <strong
               >{stats.days} dias ({stats.months.toFixed(1)} ciclos de {CYCLE_DAYS}
               dias)</strong
             >
           </div>
         {/if}
-      </div>
-
-      <div>
-        <label for="power-select">
-          <strong>Potência Contratada (kVA)</strong>
-        </label>
-        <select
-          id="power-select"
-          value={selectedPowerKva}
-          onchange={handlePowerChange}
-        >
-          {#each availablePowers as p}
-            <option value={p}>{p} kVA</option>
-          {/each}
-        </select>
       </div>
     </Grid>
   </wa-card>
@@ -183,13 +164,13 @@
     <Grid gap="s">
       <div>
         <h4 data-appearance="p">Consumo Total</h4>
-        <strong>{stats.monthlyAverageTotal.toFixed(1)} kWh</strong>
+        <strong>{stats.monthlyAverageTotal.toFixed(1)} kWh</strong><br>
         <small>{stats.dailyAverageTotal.toFixed(2)} kWh/dia</small>
       </div>
 
       <div>
         <h4 data-appearance="p">Vazio</h4>
-        <strong>{stats.monthlyAverageVazio.toFixed(1)} kWh</strong>
+        <strong>{stats.monthlyAverageVazio.toFixed(1)} kWh</strong><br>
         <small
           >{(
             (stats.monthlyAverageVazio / (stats.monthlyAverageTotal || 1)) *
@@ -200,7 +181,7 @@
 
       <div>
         <h4 data-appearance="p">Ponta</h4>
-        <strong>{stats.monthlyAveragePonta.toFixed(1)} kWh</strong>
+        <strong>{stats.monthlyAveragePonta.toFixed(1)} kWh</strong><br>
         <small
           >{(
             (stats.monthlyAveragePonta / (stats.monthlyAverageTotal || 1)) *
@@ -211,7 +192,7 @@
 
       <div>
         <h4 data-appearance="p">Cheia</h4>
-        <strong>{stats.monthlyAverageCheia.toFixed(1)} kWh</strong>
+        <strong>{stats.monthlyAverageCheia.toFixed(1)} kWh</strong><br>
         <small
           >{(
             (stats.monthlyAverageCheia / (stats.monthlyAverageTotal || 1)) *
@@ -222,7 +203,7 @@
 
       <div>
         <h4 data-appearance="p">Fora de Vazio (P+C)</h4>
-        <strong>{stats.monthlyAverageForaDeVazio.toFixed(1)} kWh</strong>
+        <strong>{stats.monthlyAverageForaDeVazio.toFixed(1)} kWh</strong><br>
         <small
           >{(
             (stats.monthlyAverageForaDeVazio /
@@ -255,8 +236,8 @@
       <h4>Ranking de Tarifários (Ordenado por Preço)</h4>
       <Grid gap="s" align="center">
         <wa-checkbox
-          checked={showArchived ? true : undefined}
-          onwa-change={(e: any) => (showArchived = e.target.checked)}
+          checked={showArchived}
+          onchange={(e: any) => (showArchived = e.currentTarget.checked)}
         >
           Mostrar arquivadas
         </wa-checkbox>
