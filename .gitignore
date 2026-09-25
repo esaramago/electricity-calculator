@@ -1,0 +1,12 @@
+node_modules
+.svelte-kit
+build
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# PocketBase local database (keep migrations, ignore sqlite db)
+pocketbase/pocketbase
+pocketbase/pb_data/*
+!pocketbase/pb_data/.gitkeep

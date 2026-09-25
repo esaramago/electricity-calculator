@@ -1,0 +1,28 @@
+services:
+  pocketbase:
+    build:
+      context: ./pocketbase
+      dockerfile: Dockerfile
+    container_name: electricity_pocketbase
+    restart: unless-stopped
+    ports:
+      - '8090:8090'
+    volumes:
+      - pb_data:/pb/pb_data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: electricity_web
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - POCKETBASE_URL=http://pocketbase:8090
+    depends_on:
+      - pocketbase
+
+volumes:
+  pb_data:
